@@ -1,6 +1,17 @@
 # Openmetadata
 API Openmetadata 
 
+#Virtual environment 
+python3 -m venv env \
+source env/bin/activate \
+desactive 
+
+#Flask
+export FLASK_APP=app.py \ 
+export FLASK_ENV=development \
+export FLASK_DEBUG=1 \
+flask run 
+
 # Curl commands   
 -> Database service \
 curl http://localhost:5000/database_service -H 'content-type: application/json' \
