@@ -75,7 +75,7 @@ def serialize_json(data):
    result = [{'id': i, 'name': n, 'fullyQualifiedName': fqn, 'serviceType': st, 
             'description': d, 'tags': t} 
             for i, n, fqn, st, d, t in fields]   
-   return json.dumps(result)
+   return result
 
 def connection(): 
    metadata = OpenMetadata(server_config)
