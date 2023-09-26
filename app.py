@@ -9,12 +9,14 @@ from flask_babel import get_locale, Babel
 from flask_cors import CORS
 from flask_restful import Api
 
-from openmetadata_api.database_service_api import DatabaseServiceListApi
-from openmetadata_api.database_service_api import DatabaseServiceDetailApi
-from openmetadata_api.database_api import DatabaseListApi
-from openmetadata_api.database_api import DatabaseDetailApi
-from openmetadata_api.schema_api import SchemaListApi
-from openmetadata_api.schema_api import SchemaDetailApi
+from openmetadata.database_service_api import DatabaseServiceListApi
+from openmetadata.database_service_api import DatabaseServiceDetailApi
+from openmetadata.database_api import DatabaseListApi
+from openmetadata.database_api import DatabaseDetailApi
+from openmetadata.schema_api import SchemaListApi
+from openmetadata.schema_api import SchemaDetailApi
+from openmetadata.table_api import TableListApi
+from openmetadata.table_api import TableDetailApi
 
 app = Flask(__name__)
 
@@ -29,8 +31,9 @@ mappings = {
     '/database': DatabaseListApi, 
     '/database/<string:fqn>': DatabaseDetailApi, 
     '/schema': SchemaListApi, 
-    '/schema/<string:fqn>': SchemaDetailApi #, 
-    #'/table': SchemaListApi, 
+    '/schema/<string:fqn>': SchemaDetailApi, 
+    '/table': TableListApi, 
+    '/table/<string:fqn>': TableDetailApi #, 
     #'/model_service': ModelServiceListApi, 
     #'/model': ModelListApi, 
     #'/pipeline_service': PipelineServiceListApi, 

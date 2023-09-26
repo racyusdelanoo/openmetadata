@@ -10,7 +10,7 @@ from marshmallow.exceptions import ValidationError
 
 from openmetadata.openmetadata import serialize_json 
 from openmetadata.openmetadata import connection
-from openmetadata.openmetadata import create_schema
+from openmetadata.openmetadata import create_table
 from openmetadata.openmetadata import list_entities
 from openmetadata.openmetadata import get_entity_by_name
 from openmetadata.openmetadata import get_entity_id
@@ -20,16 +20,16 @@ from flask_babel import gettext
 
 log = logging.getLogger(__name__)
 
-class SchemaListApi(Resource): 
-    """ REST API for listing class Schema"""
+class TableListApi(Resource): 
+    """ REST API for listing class Table"""
 
     def __init__(self):
-        self.human_name = gettext('Schema')
+        self.human_name = gettext('Table')
 
     def get(self):
         metadata = connection()
-        data = list_entities(metadata, entity_type["DatabaseSchema"])
-        
+        data = list_entities(metadata, entity_type["Table"])
+         
         if log.isEnabledFor(logging.DEBUG):
            log.debug(gettext('Listing %(name)s', name=self.human_name))
 
@@ -43,13 +43,23 @@ class SchemaListApi(Resource):
         if request.json is not None:
           db_service_name = request.json['db_service_name']  
           db_name = db_service_name +"."+ request.json['db_name']  
-          schema_name = request.json['schema_name']  
+          schema_name = db_name +"."+ request.json['schema_name']  
+          table_name = request.json['table_name']  
+          table_cols = request.json['table_columns']
+          table_dtypes = request.json['table_datatypes'] 
+          table_const = request.json['table_constraints'] 
+         
+          table = {"name": table_name, 
+                   "columns": table_cols, 
+                   "datatypes": table_dtypes, 
+                   "constraints": table_const
+                  }
 
           metadata = connection()
-          data = get_entity_by_name(metadata, entity_type["Database"], db_name)
+          data = get_entity_by_name(metadata, entity_type["DatabaseSchema"], schema_name)
           return_code = HTTPStatus.OK
           if data[0] is not None: 
-            create_schema(metadata, db_name, schema_name) 
+            create_table(metadata, table, schema_name) 
             result = {'status': 'SUCESS',
                       'message': gettext("Json received with sucess")}
             return_code = HTTPStatus.CREATED
@@ -58,12 +68,12 @@ class SchemaListApi(Resource):
             result = {
                        'status': 'ERROR',
                        'message': gettext(
-                       'Database not found (fqn=%(fqn)s)',
-                        fqn=db_name) 
+                       'Schema not found (fqn=%(fqn)s)',
+                        fqn=schema_name) 
                      }
         return result, return_code
 
-class SchemaDetailApi(Resource): 
+class TableDetailApi(Resource): 
     """ REST API for a single instance of class Schema"""
 
     def __init__(self):

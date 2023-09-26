@@ -39,7 +39,11 @@ from metadata.generated.schema.api.data.createDatabaseSchema import (
    CreateDatabaseSchemaRequest,
 )
 
-jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2ODQxNzU4NjAsImV4cCI6bnVsbH0.tIKQu5e8gvKcU7aPUbTIH3weOrefDCYeRmbV6LWJr1xN_jeh8_VhRozqRZOtC2TxI7k9VJFZqca7wlwtWpY326FxXCRq3a8_0KzK_9HuTa1hxwYbfQR-ejIqxDHf2o9URZoKuz3cI5-YVlHbZFzSio-gXHLUACzcU1bt0M5MpZFWrLt41IkMZR6KTqAq5hJfBHnbmg813kzSNojILanaZNppog91Ki0XrbM052y6o1HdbSdzi6dskh--ZESoTUno4JBxOpxTaW70_w_wNWf_45J7suH2kbZvv_W9K1m_-ZW4QH764u0VEDBuD3o4y45TbMddEVwuU_4Z-9flStJ5lQ'
+#Table 
+from metadata.generated.schema.entity.data.table import Column, DataType, Table
+from metadata.generated.schema.api.data.createTable import CreateTableRequest
+
+jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTU2NTcwNDksImV4cCI6bnVsbH0.OSYzmvRHspjebmdOTWUNFZ-fmsDhBxHUDy_kRKf8J9OdJKk8Rsh2skwubVHHNFJZJweKNQSkpF6Wmm36w9R__XdEU1RtG9ocVQfpEUgboItNeN5lDDj1mRthMU8JEvUU5tsEYSCvMDsYpqWlzfB-F636MhWdUe8slmYlXLq4SF3UVvmfcdJh4PPIEMcmlp7SsX8pjScbKiU9RMQG0op4Eu91le22gUaSkyau2eYxFl8EnCmNV5wXhbMx5Emxv8oR2FXKq9VZEwYyQaMMWsk79Peu7UHzl_x3rq3YPw1ECWL0TXvg_QFMfpi_Z-3Lej_vEztXC38eTHTxFfZJewxjeQ'
 
 server_config = OpenMetadataConnection(
     hostPort="http://localhost:8585/api",
@@ -59,6 +63,7 @@ entity_type = {
                 "DatabaseService": DatabaseService,  
                 "Database": Database, 
                 "DatabaseSchema": DatabaseSchema,
+                "Table": Table,
               }
 
 def serialize_json(data): 
@@ -108,6 +113,19 @@ def create_schema(metadata, database, schema_name):
              database=database, 
    )
    return metadata.create_or_update(schema)
+
+def create_table(metadata, table, schema_name):
+    mtable = CreateTableRequest(
+              name=table['name'], 
+              databaseSchema=schema_name,  
+              columns=[Column(name=col, 
+                              dataType=DataType(dtype), 
+                              constraint=const 
+                             )
+                             for (col, dtype, const) in zip(table['columns'], table['datatypes'], table['constraints']) 
+                      ], 
+              )
+    return metadata.create_or_update(data=mtable)
 
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities

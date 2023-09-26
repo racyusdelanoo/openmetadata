@@ -8,14 +8,14 @@ from flask_restful import Resource
 from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
 
-from openmetadata_api.openmetadata import serialize_json 
-from openmetadata_api.openmetadata import connection
-from openmetadata_api.openmetadata import create_database_service
-from openmetadata_api.openmetadata import list_entities
-from openmetadata_api.openmetadata import get_entity_by_name
-from openmetadata_api.openmetadata import get_entity_id
-from openmetadata_api.openmetadata import delete_entity
-from openmetadata_api.openmetadata import entity_type
+from openmetadata.openmetadata import serialize_json 
+from openmetadata.openmetadata import connection
+from openmetadata.openmetadata import create_database_service
+from openmetadata.openmetadata import list_entities
+from openmetadata.openmetadata import get_entity_by_name
+from openmetadata.openmetadata import get_entity_id
+from openmetadata.openmetadata import delete_entity
+from openmetadata.openmetadata import entity_type
 from flask_babel import gettext
 
 log = logging.getLogger(__name__)
@@ -29,7 +29,6 @@ class DatabaseServiceListApi(Resource):
     def get(self):
         metadata = connection()
         data = list_entities(metadata, entity_type["DatabaseService"])
-        
         if log.isEnabledFor(logging.DEBUG):
            log.debug(gettext('Listing %(name)s', name=self.human_name))
 
