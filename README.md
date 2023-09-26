@@ -7,27 +7,34 @@ source env/bin/activate \
 desactive 
 
 # Flask 
-export FLASK_APP=app.py \ 
+export FLASK_APP=app.py\
 export FLASK_ENV=development \
 export FLASK_DEBUG=1 \
 flask run 
 
 # Curl commands   
--> Database service \
+* Database service \
 curl http://localhost:5000/database_service -H 'content-type: application/json' \
 curl http://localhost:5000/database_service -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service"}' \
 curl http://localhost:5000/database_service/"database-service" -H 'content-type: application/json' \
 curl http://localhost:5000/database_service/"database-service" -H 'content-type: application/json' -X DELETE 
   
--> Database \
+* Database \
 curl http://localhost:5000/database -H 'content-type: application/json' \
 curl http://localhost:5000/database -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service", "db_name":"database"}' \
 curl http://localhost:5000/database/"database-service.database" -H 'content-type: application/json' \
 curl http://localhost:5000/database/"database-service.database" -H 'content-type: application/json' -X DELETE 
 
--> Schema \
+* Schema \
 curl http://localhost:5000/schema -H 'content-type: application/json' \ 
 curl http://localhost:5000/schema -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service", "db_name":"database", "schema_name": "schema"}' \
 curl http://localhost:5000/schema/"database-service.database.schema" -H 'content-type: application/json' \
 curl http://localhost:5000/schema/"database-service.database.schema" -H 'content-type: application/json' -X DELETE 
+
+* Table \
+curl http://localhost:5000/table -H 'content-type: application/json' \
+curl http://localhost:5000/table -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service", "db_name":"database", "schema_name": "schema",  "table_name":"tableA", "table_columns":["id"], "table_datatypes":["BIGINT"], "table_constraints":["PRIMARY_KEY"] }' \
+curl http://localhost:5000/table/"database-service.database.schema.tableA" -H 'content-type: application/json' \
+curl http://localhost:5000/table/"database-service.database.schema.tableA" -H 'content-type: application/json' -X DELETE
+
 

@@ -74,17 +74,17 @@ class TableListApi(Resource):
         return result, return_code
 
 class TableDetailApi(Resource): 
-    """ REST API for a single instance of class Schema"""
+    """ REST API for a single instance of class Table"""
 
     def __init__(self):
-        self.human_name = gettext('Schema')
+        self.human_name = gettext('Table')
 
     def get(self, fqn):
         if log.isEnabledFor(logging.DEBUG):
            log.debug(gettext('Retrieving %s (fqn=%s)', self.human_name, fqn))
 
         metadata = connection()
-        data = get_entity_by_name(metadata, entity_type["DatabaseSchema"], fqn)
+        data = get_entity_by_name(metadata, entity_type["Table"], fqn)
         return_code = HTTPStatus.OK
         if data[0] is not None: 
           result={
@@ -106,10 +106,10 @@ class TableDetailApi(Resource):
            log.debug(gettext('Deleting %s (fqn=%s)', self.human_name, fqn))
 
         metadata = connection()
-        database = get_entity_by_name(metadata, entity_type["DatabaseSchema"], fqn) 
+        database = get_entity_by_name(metadata, entity_type["Table"], fqn) 
         return_code = HTTPStatus.OK
         if database[0] is not None: 
-          delete_entity(metadata, entity_type["DatabaseSchema"], database[0].id)
+          delete_entity(metadata, entity_type["Table"], database[0].id)
           result={
                   'status': 'OK',
                   'message': gettext(
