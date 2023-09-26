@@ -17,6 +17,8 @@ from openmetadata.schema_api import SchemaListApi
 from openmetadata.schema_api import SchemaDetailApi
 from openmetadata.table_api import TableListApi
 from openmetadata.table_api import TableDetailApi
+from openmetadata.model_service_api import ModelServiceListApi
+from openmetadata.model_service_api import ModelServiceDetailApi
 
 app = Flask(__name__)
 
@@ -33,8 +35,9 @@ mappings = {
     '/schema': SchemaListApi, 
     '/schema/<string:fqn>': SchemaDetailApi, 
     '/table': TableListApi, 
-    '/table/<string:fqn>': TableDetailApi #, 
-    #'/model_service': ModelServiceListApi, 
+    '/table/<string:fqn>': TableDetailApi, 
+    '/model_service': ModelServiceListApi, 
+    '/model_service/<string:fqn>': ModelServiceDetailApi, 
     #'/model': ModelListApi, 
     #'/pipeline_service': PipelineServiceListApi, 
     #'/pipeline': PipelineListApi, 

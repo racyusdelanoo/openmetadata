@@ -26,7 +26,7 @@ curl http://localhost:5000/database/"database-service.database" -H 'content-type
 curl http://localhost:5000/database/"database-service.database" -H 'content-type: application/json' -X DELETE 
 
 * Schema \
-curl http://localhost:5000/schema -H 'content-type: application/json' \ 
+curl http://localhost:5000/schema -H 'content-type: application/json' <br> 
 curl http://localhost:5000/schema -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service", "db_name":"database", "schema_name": "schema"}' \
 curl http://localhost:5000/schema/"database-service.database.schema" -H 'content-type: application/json' \
 curl http://localhost:5000/schema/"database-service.database.schema" -H 'content-type: application/json' -X DELETE 
@@ -36,5 +36,12 @@ curl http://localhost:5000/table -H 'content-type: application/json' \
 curl http://localhost:5000/table -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service", "db_name":"database", "schema_name": "schema",  "table_name":"tableA", "table_columns":["id"], "table_datatypes":["BIGINT"], "table_constraints":["PRIMARY_KEY"] }' \
 curl http://localhost:5000/table/"database-service.database.schema.tableA" -H 'content-type: application/json' \
 curl http://localhost:5000/table/"database-service.database.schema.tableA" -H 'content-type: application/json' -X DELETE
+
+* Model service \
+curl http://localhost:5000/model_service -H 'content-type: application/json' \
+curl http://localhost:5000/model_service -H 'content-type: application/json' -X POST -d '{"ml_service_name":"CustomMLService"}' \
+curl http://localhost:5000/model_service/"CustomMLService" -H 'content-type: application/json' \
+curl http://localhost:5000/model_service/"CustomMLService" -H 'content-type: application/json' -X DELETE
+
 
 

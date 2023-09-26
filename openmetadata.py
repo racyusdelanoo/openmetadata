@@ -43,6 +43,17 @@ from metadata.generated.schema.api.data.createDatabaseSchema import (
 from metadata.generated.schema.entity.data.table import Column, DataType, Table
 from metadata.generated.schema.api.data.createTable import CreateTableRequest
 
+#Model Service 
+from metadata.generated.schema.entity.services.mlmodelService import (
+    MlModelService,
+    MlModelConnection,
+    MlModelServiceType
+)
+from metadata.generated.schema.api.services.createMlModelService import CreateMlModelServiceRequest
+from metadata.generated.schema.entity.services.connections.mlmodel.customMlModelConnection import (
+    CustomMlModelConnection, CustomMlModelType
+)
+
 jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTU2NTcwNDksImV4cCI6bnVsbH0.OSYzmvRHspjebmdOTWUNFZ-fmsDhBxHUDy_kRKf8J9OdJKk8Rsh2skwubVHHNFJZJweKNQSkpF6Wmm36w9R__XdEU1RtG9ocVQfpEUgboItNeN5lDDj1mRthMU8JEvUU5tsEYSCvMDsYpqWlzfB-F636MhWdUe8slmYlXLq4SF3UVvmfcdJh4PPIEMcmlp7SsX8pjScbKiU9RMQG0op4Eu91le22gUaSkyau2eYxFl8EnCmNV5wXhbMx5Emxv8oR2FXKq9VZEwYyQaMMWsk79Peu7UHzl_x3rq3YPw1ECWL0TXvg_QFMfpi_Z-3Lej_vEztXC38eTHTxFfZJewxjeQ'
 
 server_config = OpenMetadataConnection(
@@ -64,6 +75,7 @@ entity_type = {
                 "Database": Database, 
                 "DatabaseSchema": DatabaseSchema,
                 "Table": Table,
+                "MlModelService": MlModelService,  
               }
 
 def serialize_json(data): 
@@ -126,6 +138,19 @@ def create_table(metadata, table, schema_name):
                       ], 
               )
     return metadata.create_or_update(data=mtable)
+
+def create_model_service(metadata, ml_service_name): 
+    ml_service = CreateMlModelServiceRequest(
+	          name=ml_service_name,
+                  serviceType=MlModelServiceType.CustomMlModel,
+                  connection=MlModelConnection(
+                      config=CustomMlModelConnection(
+                          type=CustomMlModelType.CustomMlModel,
+                          sourcePythonClass="my.class",
+                      )
+                   )
+                )
+    return metadata.create_or_update(data=ml_service)
 
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities
