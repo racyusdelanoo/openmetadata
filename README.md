@@ -49,3 +49,9 @@ curl http://localhost:5000/model -H 'content-type: application/json' -X POST -d 
 curl http://localhost:5000/model/"CustomMLService.RevenuePredictions" -H 'content-type: application/json' \
 curl http://localhost:5000/model/"CustomMLService.RevenuePredictions" -H 'content-type: application/json' -X DELETE
 
+* Pipeline service <br> 
+curl http://localhost:5000/pipeline_service -H 'content-type: application/json' \
+curl http://localhost:5000/pipeline_service -H 'content-type: application/json' -X POST -d '{"pipeline_service": {"name": "pipeline-service", "description": "Description of pipeline service"}}' \
+curl http://localhost:5000/pipeline_service/"pipeline-service" -H 'content-type: application/json' \
+curl http://localhost:5000/pipeline_service/"pipeline-service" -H 'content-type: application/json' -X DELETE 
+

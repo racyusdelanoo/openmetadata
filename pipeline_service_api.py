@@ -10,7 +10,7 @@ from marshmallow.exceptions import ValidationError
 
 from openmetadata.openmetadata import serialize_json 
 from openmetadata.openmetadata import connection
-from openmetadata.openmetadata import create_model_service
+from openmetadata.openmetadata import create_pipeline_service
 from openmetadata.openmetadata import list_entities
 from openmetadata.openmetadata import get_entity_by_name
 from openmetadata.openmetadata import get_entity_id
@@ -20,15 +20,15 @@ from flask_babel import gettext
 
 log = logging.getLogger(__name__)
 
-class ModelServiceListApi(Resource): 
-    """ REST API for listing class Model Service """
+class PipelineServiceListApi(Resource): 
+    """ REST API for listing class Pipeline Service """
 
     def __init__(self):
-        self.human_name = gettext('Model Service')
+        self.human_name = gettext('Pipeline Service')
 
     def get(self):
         metadata = connection()
-        data = list_entities(metadata, entity_type["MlModelService"])
+        data = list_entities(metadata, entity_type["PipelineService"])
         if log.isEnabledFor(logging.DEBUG):
            log.debug(gettext('Listing %(name)s', name=self.human_name))
 
@@ -40,9 +40,9 @@ class ModelServiceListApi(Resource):
         return_code = HTTPStatus.BAD_REQUEST
 
         if request.json is not None:
-          ml_service_name = request.json['ml_service_name']  
+          pipeline_service = request.json['pipeline_service']  
           metadata = connection()
-          create_model_service(metadata, ml_service_name) 
+          create_pipeline_service(metadata, pipeline_service) 
           
           result = {'status': 'SUCESS',
                     'message': gettext("Json received with sucess")}
@@ -50,18 +50,18 @@ class ModelServiceListApi(Resource):
 
         return result, return_code
 
-class ModelServiceDetailApi(Resource): 
-    """ REST API for a single instance of class Model Service """
+class PipelineServiceDetailApi(Resource): 
+    """ REST API for a single instance of class Pipeline Service """
 
     def __init__(self):
-        self.human_name = gettext('Model Service')
+        self.human_name = gettext('Pipeline Service')
 
     def get(self, fqn):
         if log.isEnabledFor(logging.DEBUG):
            log.debug(gettext('Retrieving %s (fqn=%s)', self.human_name, fqn))
 
         metadata = connection()
-        data = get_entity_by_name(metadata, entity_type["MlModelService"], fqn)
+        data = get_entity_by_name(metadata, entity_type["PipelineService"], fqn)
         return_code = HTTPStatus.OK
         if data[0] is not None: 
           result={
@@ -83,10 +83,10 @@ class ModelServiceDetailApi(Resource):
            log.debug(gettext('Deleting %s (fqn=%s)', self.human_name, fqn))
 
         metadata = connection()
-        ml_service = get_entity_by_name(metadata, entity_type["MlModelService"], fqn) 
+        pipeline_service = get_entity_by_name(metadata, entity_type["PipelineService"], fqn) 
         return_code = HTTPStatus.OK
-        if ml_service[0] is not None: 
-          delete_entity(metadata, entity_type["MlModelService"], ml_service[0].id)
+        if pipeline_service[0] is not None: 
+          delete_entity(metadata, entity_type["PipelineService"], pipeline_service[0].id)
           result={
                   'status': 'OK',
                   'message': gettext(
