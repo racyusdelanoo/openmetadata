@@ -41,45 +41,17 @@ class ModelListApi(Resource):
         return_code = HTTPStatus.BAD_REQUEST
 
         if request.json is not None:
-          ml_service_name = request.json['ml_service_name']  
-          ml_name = request.json['ml_name']
-          ml_description = request.json['ml_description']
-          ml_algorithm = request.json['ml_algorithm']
-          ml_target = request.json['ml_target']
-          ml_feature_name = request.json['ml_feature_name']
-          ml_feature_datatype = request.json['ml_feature_datatype']
-          ml_feature_algorithm = request.json['ml_feature_algorithm']
-          ml_feature_source_name = request.json['ml_feature_source_name']
-          ml_feature_source_datatype = request.json['ml_feature_source_datatype']
-          ml_feature_data_source_fqn = request.json['ml_feature_data_source_fqn']
-          ml_parameter_name = request.json['ml_parameter_name']
-          ml_parameter_value = request.json['ml_parameter_value']
-          ml_parameter_description = request.json['ml_parameter_description']
-          ml_storage = request.json['ml_storage']
-          ml_imagerepository = request.json['ml_imagerepository']
+          ml_model = request.json['ml_model']  
+          ml_feature = request.json['ml_feature']
+          ml_feature_source = request.json['ml_feature_source']
+          ml_parameter = request.json['ml_parameter']
+          ml_store = request.json['ml_store']
           
-          model = {'name': ml_name,
-                   'description': ml_description,
-                   'algorithm': ml_algorithm,          
-                   'target': ml_target,
-                   'feature_name' : ml_feature_name, 
-                   'feature_datatype':  ml_feature_datatype,
-                   'feature_algorithm': ml_feature_algorithm,
-                   'feature_source_name': ml_feature_source_name,
-                   'feature_source_datatype': ml_feature_source_datatype,
-                   'feature_data_source_fqn': ml_feature_data_source_fqn,
-                   'parameter_name': ml_parameter_name,
-                   'parameter_value': ml_parameter_value,
-                   'parameter_description': ml_parameter_description,
-                   'storage': ml_storage, 
-                   'image_repository': ml_imagerepository
-                  }
-
           metadata = connection()
-          data = get_entity_by_name(metadata, entity_type["MlModelService"], ml_service_name)
+          data = get_entity_by_name(metadata, entity_type["MlModelService"], ml_model['service_name'])
           return_code = HTTPStatus.OK
           if data[0] is not None: 
-            create_model(metadata, model, ml_service_name) 
+            create_model(metadata, ml_model, ml_feature, ml_feature_source, ml_parameter, ml_store) 
             result = {'status': 'SUCESS',
                       'message': gettext("Json received with sucess")}
             return_code = HTTPStatus.CREATED
@@ -89,7 +61,7 @@ class ModelListApi(Resource):
                        'status': 'ERROR',
                        'message': gettext(
                        'Model Service not found (fqn=%(fqn)s)',
-                        fqn=ml_service_name) 
+                        fqn=ml_model['service_name']) 
                      }
 
         return result, return_code

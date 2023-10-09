@@ -138,15 +138,15 @@ def create_schema(metadata, database, schema_name):
    )
    return metadata.create_or_update(schema)
 
-def create_table(metadata, table, schema_name):
+def create_table(metadata, table_name, table_columns, schema_name):
     mtable = CreateTableRequest(
-              name=table['name'], 
+              name=table_name, 
               databaseSchema=schema_name,  
-              columns=[Column(name=col, 
-                              dataType=DataType(dtype), 
-                              constraint=const 
+              columns=[Column(name=column['name'], 
+                              dataType=DataType(column['type']), 
+                              constraint=column['constraints'] 
                              )
-                             for (col, dtype, const) in zip(table['columns'], table['datatypes'], table['constraints']) 
+                             for column in table_columns
                       ], 
               )
     return metadata.create_or_update(data=mtable)
@@ -164,46 +164,43 @@ def create_model_service(metadata, ml_service_name):
                 )
     return metadata.create_or_update(data=ml_service)
 
-def create_model(metadata, model, ml_service_name): 
-   mmodel = CreateMlModelRequest(
-              name=model["name"],
-              description=model["description"],
-              algorithm=model["algorithm"],
-              target=model["target"],
+def create_model(metadata, ml_model, ml_feature, ml_feature_source, ml_parameter, ml_store): 
+   model = CreateMlModelRequest(
+              name=ml_model["name"],
+              description=ml_model["description"],
+              algorithm=ml_model["algorithm"],
+              target=ml_model["target"],
 	      mlFeatures=[
 	          MlFeature( 
-	              name=fname,
-	              dataType=fdtype,
-	              featureAlgorithm=falgo,
+	              name=feature['name'],
+	              dataType=feature['type'],
+	              featureAlgorithm=feature['algorithm'],
 	              featureSources=[
 	                FeatureSource(  
-	                  name=fsname,
-	                  dataType=fsdtype,
-	                  dataSource=get_data_source_from_fqn(metadata, fsdsource)  
+	                  name=feature_source['name'],
+	                  dataType=feature_source['type'],
+	                  dataSource=get_data_source_from_fqn(metadata, feature_source['data_source_fqn'])  
 	                )
-                        for (fsname, fsdtype, fsdsource) in zip(model["feature_source_name"], 
-                        model["feature_source_datatype"], model["feature_data_source_fqn"]) 
+                        for feature_source in ml_feature_source 
 	              ] 
 	          )
-                  for (fname, fdtype, falgo) in zip(model["feature_name"], 
-                  model["feature_datatype"], model["algorithm"]) 
+                  for feature in ml_feature 
 	      ],
 	      mlHyperParameters=[
 	          MlHyperParameter(
-	              name=param_name,
-	              value=param_value,
-	              description=param_desc,
+	              name=parameter['name'],
+	              value=parameter['value'],
+	              description=parameter['description'],
 	          )
-                  for (param_name, param_value, param_desc) in zip(model["parameter_name"], 
-                  model["parameter_value"], model["parameter_description"]) 
+                  for parameter in ml_parameter 
 	      ],
 	      mlStore=MlStore(
-	        storage=model["storage"],
-	        imageRepository=model["image_repository"]
+	        storage=ml_store["storage"],
+	        imageRepository=ml_store['image_repository']
               ), 
-              service=ml_service_name   
+              service=ml_model['service_name']   
             ) 
-   return metadata.create_or_update(data=mmodel)
+   return metadata.create_or_update(data=model)
 
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities

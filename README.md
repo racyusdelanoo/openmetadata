@@ -33,7 +33,7 @@ curl http://localhost:5000/schema/"database-service.database.schema" -H 'content
 
 * Table \
 curl http://localhost:5000/table -H 'content-type: application/json' \
-curl http://localhost:5000/table -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service", "db_name":"database", "schema_name": "schema",  "table_name":"tableA", "table_columns":["id"], "table_datatypes":["BIGINT"], "table_constraints":["PRIMARY_KEY"] }' \
+curl http://localhost:5000/table -H 'content-type: application/json' -X POST -d '{"db_service_name":"database-service", "db_name":"database", "schema_name": "schema", "table_name": "tableA", "table_columns": [{"name": "id", "type": "BIGINT", "constraints": "PRIMARY_KEY"}]}' \
 curl http://localhost:5000/table/"database-service.database.schema.tableA" -H 'content-type: application/json' \
 curl http://localhost:5000/table/"database-service.database.schema.tableA" -H 'content-type: application/json' -X DELETE
 
@@ -45,11 +45,7 @@ curl http://localhost:5000/model_service/"CustomMLService" -H 'content-type: app
 
 * Model \
 curl http://localhost:5000/model -H 'content-type: application/json' \
-curl http://localhost:5000/model -H 'content-type: application/json' -X POST -d '{"ml_service_name":"CustomMLService", "ml_name":"RevenuePredictions",
-"ml_description":"This model computes how long it will take for an order to be picked up", "ml_algorithm":"XGBoost", "ml_target": "expected_time", 
-"ml_feature_name": ["last_update_bucket"], "ml_feature_datatype": ["categorical"], "ml_feature_algorithm": ["Bucketing"], 
-"ml_feature_source_name": ["tableA"], "ml_feature_source_datatype": ["timestamp"], "ml_feature_data_source_fqn": ["database-service.database.schema.tableA"], "ml_parameter_name": ["regularisation"], "ml_parameter_value": [0.5], "ml_parameter_description": ["Adding some room for error"], "ml_storage": "s3://path-to-pickle", "ml_imagerepository": "https://docker.hub.com/image"}' \   
+curl http://localhost:5000/model -H 'content-type: application/json' -X POST -d '{"ml_model": {"service_name": "CustomMLService", "name": "RevenuePredictions", "description": "This model computes how long it will take for an order to be picked up", "algorithm": "XGBoost", "target": "expected_time"}, "ml_feature": [{"name": "last_update_bucket", "type": "categorical", "algorithm": "Bucketing"}], "ml_feature_source": [{"name": "tableA", "type": "timestamp", "data_source_fqn": "database-service.database.schema.tableA"}], "ml_parameter": [{"name": "regularisation", "value": "0.5", "description": "Adding some room for error"}], "ml_store": {"storage": "s3://path-to-pickle", "image_repository": "https://docker.hub.com/image"}}' \
 curl http://localhost:5000/model/"CustomMLService.RevenuePredictions" -H 'content-type: application/json' \
 curl http://localhost:5000/model/"CustomMLService.RevenuePredictions" -H 'content-type: application/json' -X DELETE
-
 

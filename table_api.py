@@ -44,22 +44,14 @@ class TableListApi(Resource):
           db_service_name = request.json['db_service_name']  
           db_name = db_service_name +"."+ request.json['db_name']  
           schema_name = db_name +"."+ request.json['schema_name']  
-          table_name = request.json['table_name']  
-          table_cols = request.json['table_columns']
-          table_dtypes = request.json['table_datatypes'] 
-          table_const = request.json['table_constraints'] 
-         
-          table = {"name": table_name, 
-                   "columns": table_cols, 
-                   "datatypes": table_dtypes, 
-                   "constraints": table_const
-                  }
+          table_name  = request.json['table_name']
+          table_columns = request.json['table_columns']
 
           metadata = connection()
           data = get_entity_by_name(metadata, entity_type["DatabaseSchema"], schema_name)
           return_code = HTTPStatus.OK
           if data[0] is not None: 
-            create_table(metadata, table, schema_name) 
+            create_table(metadata, table_name, table_columns, schema_name) 
             result = {'status': 'SUCESS',
                       'message': gettext("Json received with sucess")}
             return_code = HTTPStatus.CREATED
