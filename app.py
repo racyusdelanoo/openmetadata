@@ -23,6 +23,8 @@ from openmetadata.model_api import ModelListApi
 from openmetadata.model_api import ModelDetailApi
 from openmetadata.pipeline_service_api import PipelineServiceListApi
 from openmetadata.pipeline_service_api import PipelineServiceDetailApi
+from openmetadata.pipeline_api import PipelineListApi
+from openmetadata.pipeline_api import PipelineDetailApi
 
 app = Flask(__name__)
 
@@ -46,7 +48,8 @@ mappings = {
     '/model/<string:fqn>': ModelDetailApi, 
     '/pipeline_service': PipelineServiceListApi, 
     '/pipeline_service/<string:fqn>': PipelineServiceDetailApi, 
-    #'/pipeline': PipelineListApi, 
+    '/pipeline': PipelineListApi, 
+    '/pipeline/<string:fqn>': PipelineDetailApi, 
     #'/classification': ClassificationListApi, 
     #'/tag': TagListApi, 
     #'/lineage': LineageListApi, 

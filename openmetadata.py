@@ -6,7 +6,6 @@ import json
 from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     OpenMetadataConnection,
 )
-
 from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
         OpenMetadataJWTClientConfig,
 )
@@ -19,11 +18,9 @@ from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.generated.schema.api.services.createDatabaseService import (
     CreateDatabaseServiceRequest,
 )
-
 from metadata.generated.schema.entity.services.connections.database.customDatabaseConnection import (
     CustomDatabaseConnection,
 )
-
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
     DatabaseService,
@@ -69,16 +66,25 @@ from metadata.generated.schema.entity.data.mlmodel import (
 from metadata.generated.schema.api.services.createPipelineService import (
     CreatePipelineServiceRequest,
 )
-
 from metadata.generated.schema.entity.services.connections.pipeline.customPipelineConnection import (
     CustomPipelineConnection, CustomPipelineType
 )
-
 from metadata.generated.schema.entity.services.pipelineService import (
     PipelineConnection,
     PipelineService,
     PipelineServiceType,
 )
+
+#Pipeline 
+from metadata.generated.schema.api.data.createPipeline import CreatePipelineRequest
+from metadata.generated.schema.entity.data.pipeline import (
+    Pipeline,
+    PipelineStatus,
+    StatusType,
+    Task,
+    TaskStatus,
+)
+
 
 jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTU2NTcwNDksImV4cCI6bnVsbH0.OSYzmvRHspjebmdOTWUNFZ-fmsDhBxHUDy_kRKf8J9OdJKk8Rsh2skwubVHHNFJZJweKNQSkpF6Wmm36w9R__XdEU1RtG9ocVQfpEUgboItNeN5lDDj1mRthMU8JEvUU5tsEYSCvMDsYpqWlzfB-F636MhWdUe8slmYlXLq4SF3UVvmfcdJh4PPIEMcmlp7SsX8pjScbKiU9RMQG0op4Eu91le22gUaSkyau2eYxFl8EnCmNV5wXhbMx5Emxv8oR2FXKq9VZEwYyQaMMWsk79Peu7UHzl_x3rq3YPw1ECWL0TXvg_QFMfpi_Z-3Lej_vEztXC38eTHTxFfZJewxjeQ'
 
@@ -104,6 +110,7 @@ entity_type = {
                 "MlModelService": MlModelService,  
                 "MlModel": MlModel,
                 "PipelineService": PipelineService,
+                "Pipeline": Pipeline,
               }
 
 def serialize_json(data): 
@@ -233,6 +240,18 @@ def create_pipeline_service(metadata, pip_service):
     )
 
    return metadata.create_or_update(data=pipeline_service)  
+
+def create_pipeline(metadata, pipeline): 
+   mpipeline = CreatePipelineRequest(
+            name=pipeline["name"],
+            description=pipeline["description"], 
+            service=pipeline['service_name'],
+            #tasks=[],            
+            #owner=owner, 
+            #tags=[PIPELINE_TAG_LABEL],
+        )
+
+   return metadata.create_or_update(data=mpipeline)
 
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities

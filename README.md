@@ -55,3 +55,9 @@ curl http://localhost:5000/pipeline_service -H 'content-type: application/json' 
 curl http://localhost:5000/pipeline_service/"pipeline-service" -H 'content-type: application/json' \
 curl http://localhost:5000/pipeline_service/"pipeline-service" -H 'content-type: application/json' -X DELETE 
 
+* Pipeline <br>
+curl http://localhost:5000/pipeline -H 'content-type: application/json' \
+curl http://localhost:5000/pipeline -H 'content-type: application/json' -X POST -d '{"pipeline": {"service_name": "pipeline-service",  "name": "pipeline1", "description": "Description of the pipeline instance."}}' \
+curl http://localhost:5000/pipeline/"pipeline-service.pipeline1" -H 'content-type: application/json' \
+curl http://localhost:5000/pipeline/"pipeline-service.pipeline1" -H 'content-type: application/json' -X DELETE
+
