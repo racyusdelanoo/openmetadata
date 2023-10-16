@@ -85,8 +85,15 @@ from metadata.generated.schema.entity.data.pipeline import (
     TaskStatus,
 )
 
+#Classification - Tags group
+from metadata.generated.schema.entity.classification.classification import (
+    Classification,
+)
+from metadata.generated.schema.api.classification.createClassification import (
+    CreateClassificationRequest,
+)
 
-jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTU2NTcwNDksImV4cCI6bnVsbH0.OSYzmvRHspjebmdOTWUNFZ-fmsDhBxHUDy_kRKf8J9OdJKk8Rsh2skwubVHHNFJZJweKNQSkpF6Wmm36w9R__XdEU1RtG9ocVQfpEUgboItNeN5lDDj1mRthMU8JEvUU5tsEYSCvMDsYpqWlzfB-F636MhWdUe8slmYlXLq4SF3UVvmfcdJh4PPIEMcmlp7SsX8pjScbKiU9RMQG0op4Eu91le22gUaSkyau2eYxFl8EnCmNV5wXhbMx5Emxv8oR2FXKq9VZEwYyQaMMWsk79Peu7UHzl_x3rq3YPw1ECWL0TXvg_QFMfpi_Z-3Lej_vEztXC38eTHTxFfZJewxjeQ'
+jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTUyMDk2MjYsImV4cCI6bnVsbH0.RVJ6_EWarVhygSILmoGzk7rQ01uqBDOhTNJzAEGUqtyiB_VWJj7beIHI-SgBEQUj1RxSUcFOX2M-DszgHj2eX8a5ezgiT4yij6JVyU07QkCIAgQ5Q-S7tzvkt7GJIBNPXQJjpR9tkmCgFz4hpyanz2I723ZllmZxSrwwRabNUvHT6sLjLzwQillaJw0247iYIvwekmj3nzSL_p1L0mi4RvJkYXSIW_IjDYtCoc6zF5JxOVp9dNCSPYzQeViX6bSdHN3JgYFUQXEOvHSXi3NFl9_Iqyt9D9cAOzGIyqAkQD_7EaGH2TrOADH6Uiuoty8Lwi-GdeBPZnwdx0RcOXQbNQ'
 
 server_config = OpenMetadataConnection(
     hostPort="http://localhost:8585/api",
@@ -111,22 +118,31 @@ entity_type = {
                 "MlModel": MlModel,
                 "PipelineService": PipelineService,
                 "Pipeline": Pipeline,
+                "Classification": Classification,
               }
 
-def serialize_json(data): 
+def serialize_json(data, mode=None): 
+   """
+   0 - Standard entities 
+   1 - Tags group
+   """
    fields = [] 
-   
+   serviceType = None
+   tags = [] 
    for index in range(len(data)):
       id          = str(data[index].id.__root__)
       name        = data[index].name.__root__
       fqn         = data[index].fullyQualifiedName.__root__
-      serviceType = str(data[index].serviceType)
       description = str(data[index].description)
-      tags        = [data[index].tags]
+      if (mode != 1):
+        serviceType = str(data[index].serviceType)   
+        tags        = [data[index].tags] 
       fields.append([id, name, fqn, serviceType, description, tags])   
+
    result = [{'id': i, 'name': n, 'fullyQualifiedName': fqn, 'serviceType': st, 
-            'description': d, 'tags': t} 
-            for i, n, fqn, st, d, t in fields]   
+                'description': d, 'tags': tg} 
+                for i, n, fqn, st, d, tg in fields]   
+
    return result
 
 def connection(): 
@@ -250,9 +266,14 @@ def create_pipeline(metadata, pipeline):
             #owner=owner, 
             #tags=[PIPELINE_TAG_LABEL],
         )
-
    return metadata.create_or_update(data=mpipeline)
 
+def create_tags_group(metadata, tags_group): 
+   classification = CreateClassificationRequest(
+                      description=tags_group["description"], name=tags_group["name"]
+                    )
+   return metadata.create_or_update(classification)
+    
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities
 

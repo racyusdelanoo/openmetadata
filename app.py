@@ -25,6 +25,8 @@ from openmetadata.pipeline_service_api import PipelineServiceListApi
 from openmetadata.pipeline_service_api import PipelineServiceDetailApi
 from openmetadata.pipeline_api import PipelineListApi
 from openmetadata.pipeline_api import PipelineDetailApi
+from openmetadata.tags_group_api import TagsGroupListApi
+from openmetadata.tags_group_api import TagsGroupDetailApi
 
 app = Flask(__name__)
 
@@ -50,7 +52,8 @@ mappings = {
     '/pipeline_service/<string:fqn>': PipelineServiceDetailApi, 
     '/pipeline': PipelineListApi, 
     '/pipeline/<string:fqn>': PipelineDetailApi, 
-    #'/classification': ClassificationListApi, 
+    '/tags_group': TagsGroupListApi, 
+    '/tags_group/<string:fqn>': TagsGroupDetailApi, 
     #'/tag': TagListApi, 
     #'/lineage': LineageListApi, 
     #'/data_quality': DataQualityListApi, 

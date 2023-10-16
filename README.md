@@ -61,3 +61,9 @@ curl http://localhost:5000/pipeline -H 'content-type: application/json' -X POST 
 curl http://localhost:5000/pipeline/"pipeline-service.pipeline1" -H 'content-type: application/json' \
 curl http://localhost:5000/pipeline/"pipeline-service.pipeline1" -H 'content-type: application/json' -X DELETE
 
+* Tags group <br>
+curl http://localhost:5000/tags_group -H 'content-type: application/json' \
+curl http://localhost:5000/tags_group -H 'content-type: application/json' -X POST -d '{"tags_group": {"name": "Lemonade",  "description": "Tags of the Lemonade."}}' \
+curl http://localhost:5000/tags_group/"Lemonade" -H 'content-type: application/json' \
+curl http://localhost:5000/tags_group/"Lemonade" -H 'content-type: application/json' -X DELETE
+
