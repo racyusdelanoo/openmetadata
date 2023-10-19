@@ -67,3 +67,13 @@ curl http://localhost:5000/tags_group -H 'content-type: application/json' -X POS
 curl http://localhost:5000/tags_group/"Lemonade" -H 'content-type: application/json' \
 curl http://localhost:5000/tags_group/"Lemonade" -H 'content-type: application/json' -X DELETE
 
+* Tag <br>
+curl http://localhost:5000/tag -H 'content-type: application/json' \
+curl http://localhost:5000/tag -H 'content-type: application/json' -X POST -d '{"tag_group_name": "Lemonade", "tags": [{"name":"TagLemonadeDB", "description":"Tag of the Lemonade database"}, {"name":"TagLemonadeTableA", "description":"Tag of the table A"}, {"name":"TagModelRP", "description":"Tag of the RevenuePredictions model"}, {"name":"TagPipeline1", "description":"Tag of the pipeline 1."}]}' \
+curl http://localhost:5000/tag/"Lemonade.TagLemonadeTableA" -H 'content-type: application/json' \
+curl http://localhost:5000/tag/"Lemonade.TagLemonadeTableA" -H 'content-type: application/json' -X DELETE
+
+* Path tag <br>
+curl http://localhost:5000/patch_tag -H 'content-type: application/json' -X POST -d '{"tags": [{"name":"Lemonade.TagLemonadeDB"}], "entity_name":"database-service.database", "entity_type": "Database"}' \  
+curl http://localhost:5000/patch_tag/"Database|database-service.database" -H 'content-type: application/json' 
+

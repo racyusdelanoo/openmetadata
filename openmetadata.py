@@ -93,6 +93,18 @@ from metadata.generated.schema.api.classification.createClassification import (
     CreateClassificationRequest,
 )
 
+#Tag 
+from metadata.generated.schema.entity.classification.tag import Tag
+from metadata.generated.schema.api.classification.createTag import CreateTagRequest
+
+#Tag Label 
+from metadata.generated.schema.type.tagLabel import (
+     LabelType, 
+     State,
+     TagLabel,
+     TagSource,
+)
+
 jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTUyMDk2MjYsImV4cCI6bnVsbH0.RVJ6_EWarVhygSILmoGzk7rQ01uqBDOhTNJzAEGUqtyiB_VWJj7beIHI-SgBEQUj1RxSUcFOX2M-DszgHj2eX8a5ezgiT4yij6JVyU07QkCIAgQ5Q-S7tzvkt7GJIBNPXQJjpR9tkmCgFz4hpyanz2I723ZllmZxSrwwRabNUvHT6sLjLzwQillaJw0247iYIvwekmj3nzSL_p1L0mi4RvJkYXSIW_IjDYtCoc6zF5JxOVp9dNCSPYzQeViX6bSdHN3JgYFUQXEOvHSXi3NFl9_Iqyt9D9cAOzGIyqAkQD_7EaGH2TrOADH6Uiuoty8Lwi-GdeBPZnwdx0RcOXQbNQ'
 
 server_config = OpenMetadataConnection(
@@ -119,32 +131,40 @@ entity_type = {
                 "PipelineService": PipelineService,
                 "Pipeline": Pipeline,
                 "Classification": Classification,
+                "Tag": Tag,
+                "TagLabel": TagLabel,
               }
 
 def serialize_json(data, mode=None): 
    """
    0 - Standard entities 
    1 - Tags group
+   2 - Tags  
    """
    fields = [] 
    serviceType = None
-   tags = [] 
    for index in range(len(data)):
       id          = str(data[index].id.__root__)
       name        = data[index].name.__root__
-      fqn         = data[index].fullyQualifiedName.__root__
+      if (mode == 2): 
+        fqn = data[index].fullyQualifiedName
+      else: 
+        fqn = data[index].fullyQualifiedName.__root__
       description = str(data[index].description)
-      if (mode != 1):
+      if (mode == 0):
         serviceType = str(data[index].serviceType)   
-        tags        = [data[index].tags] 
-      fields.append([id, name, fqn, serviceType, description, tags])   
-
+      fields.append([id, name, fqn, serviceType, description])   
+   
    result = [{'id': i, 'name': n, 'fullyQualifiedName': fqn, 'serviceType': st, 
-                'description': d, 'tags': tg} 
-                for i, n, fqn, st, d, tg in fields]   
+                'description': d} 
+                for i, n, fqn, st, d in fields]   
 
    return result
 
+def dump_tag(data): 
+   tags = data[0].changeDescription.fieldsAdded[0].newValue
+   return json.loads(tags) 
+ 
 def connection(): 
    metadata = OpenMetadata(server_config)
    return metadata
@@ -166,7 +186,7 @@ def create_database_service(metadata, db_service_name):
 def create_database(metadata, db_service, db_name): 
    database = CreateDatabaseRequest(
                name=db_name,
-               service=db_service,
+               service=db_service
    )
    return metadata.create_or_update(data=database)
 
@@ -272,8 +292,30 @@ def create_tags_group(metadata, tags_group):
    classification = CreateClassificationRequest(
                       description=tags_group["description"], name=tags_group["name"]
                     )
-   return metadata.create_or_update(classification)
-    
+   return metadata.create_or_update(data=classification)
+
+def create_tag(metadata, tag_group_name, tag_name, tag_description): 
+   create_tag = CreateTagRequest(
+                  name=tag_name,
+                  description=tag_description,
+                  classification=tag_group_name
+                )
+   return metadata.create_or_update(data=create_tag)
+
+def create_patch_tag(metadata, tag, etype, entity): 
+   TAG_LABEL = TagLabel(
+                tagFQN=tag, 
+                labelType=LabelType.Automated, 
+                state=State.Suggested.value, 
+                source=TagSource.Classification,
+               )   
+   join_entity_tag = metadata.patch_tag(
+                       entity=entity_type[etype], 
+                       source=entity,
+                       tag_label=TAG_LABEL,
+                     )
+   return join_entity_tag
+
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities
 
