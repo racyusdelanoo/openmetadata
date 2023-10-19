@@ -73,7 +73,7 @@ curl http://localhost:5000/tag -H 'content-type: application/json' -X POST -d '{
 curl http://localhost:5000/tag/"Lemonade.TagLemonadeTableA" -H 'content-type: application/json' \
 curl http://localhost:5000/tag/"Lemonade.TagLemonadeTableA" -H 'content-type: application/json' -X DELETE
 
-* Path tag <br>
+* Patch tag <br>
 curl http://localhost:5000/patch_tag -H 'content-type: application/json' -X POST -d '{"tags": [{"name":"Lemonade.TagLemonadeDB"}], "entity_name":"database-service.database", "entity_type": "Database"}' \  
 curl http://localhost:5000/patch_tag/"Database|database-service.database" -H 'content-type: application/json' 
 
