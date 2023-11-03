@@ -69,11 +69,37 @@ curl http://localhost:5000/tags_group/"Lemonade" -H 'content-type: application/j
 
 * Tag <br>
 curl http://localhost:5000/tag -H 'content-type: application/json' \
-curl http://localhost:5000/tag -H 'content-type: application/json' -X POST -d '{"tag_group_name": "Lemonade", "tags": [{"name":"TagLemonadeDB", "description":"Tag of the Lemonade database"}, {"name":"TagLemonadeTableA", "description":"Tag of the table A"}, {"name":"TagModelRP", "description":"Tag of the RevenuePredictions model"}, {"name":"TagPipeline1", "description":"Tag of the pipeline 1."}]}' \
+curl http://localhost:5000/tag -H 'content-type: application/json' -X POST -d '{"tag_group_name": "Lemonade", "tags": [{"name":"TagLemonadeDB", "description":"Tag of the Lemonade database"}, {"name":"TagLemonadeTableA", "description":"Tag of the table A"}, {"name":"TagLemonadeTableAId", "description":"Tag of the Lemonade - Table A - Column Id"}, {"name":"TagModelRP", "description":"Tag of the RevenuePredictions model"}, {"name":"TagPipeline1", "description":"Tag of the pipeline 1."}]}' \
 curl http://localhost:5000/tag/"Lemonade.TagLemonadeTableA" -H 'content-type: application/json' \
 curl http://localhost:5000/tag/"Lemonade.TagLemonadeTableA" -H 'content-type: application/json' -X DELETE
 
 * Patch tag <br>
 curl http://localhost:5000/patch_tag -H 'content-type: application/json' -X POST -d '{"tags": [{"name":"Lemonade.TagLemonadeDB"}], "entity_name":"database-service.database", "entity_type": "Database"}' \  
 curl http://localhost:5000/patch_tag/"Database|database-service.database" -H 'content-type: application/json' 
+
+* Patch column tag <br>
+curl http://localhost:5000/patch_column_tag -H 'content-type: application/json' -X POST -d '{"tags": [{"name":"Lemonade.TagLemonadeTableAId"}], "table":"database-service.database.schema.tableA", "column":"id"}' \
+curl http://localhost:5000/patch_column_tag/"database-service.database.schema.tableA" -H 'content-type: application/json'
+
+* Lineage between pipeline and model <br>
+curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"pipeline-service.pipeline1", "fromEntityType":"Pipeline", "toEntity":"CustomMLService.RevenuePredictions", "toEntityType":"MlModel", "description":"Lineage between pipeline and model"}' \
+curl http://localhost:5000/lineage/"Pipeline|pipeline-service.pipeline1" -H 'content-type: application/json'
+
+* Lineage between tables <br>
+curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"database-service.database.schema.tableA", "fromEntityType":"Table", "toEntity":"database-service.database.schema.tableB", "toEntityType":"Table", "description":"Lineage between TableA and TableB"}' \
+curl http://localhost:5000/lineage/"Table|database-service.database.schema.tableA" -H 'content-type: application/json'
+
+* Lineage between tables and pipeline <br>
+curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"database-service.database.schema.tableA", "fromEntityType":"Table", "toEntity":"pipeline-service.pipeline1", "toEntityType":"Pipeline", "description":"Lineage between TableA and Pipeline"}' \
+curl http://localhost:5000/lineage/"Pipeline|pipeline-service.pipeline1" -H 'content-type: application/json'
+curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"pipeline-service.pipeline1", "fromEntityType":"Pipeline", "toEntity":"database-service.database.schema.tableC", "toEntityType":"Table", "description":"Lineage between Pipeline and TableC"}' \
+curl http://localhost:5000/lineage/"Table|database-service.database.schema.tableC" -H 'content-type: application/json'
+  
+* Lineage between tables and model <br>
+curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"database-service.database.schema.tableA", "fromEntityType":"Table", "toEntity":"CustomMLService.RevenuePredictions", "toEntityType":"MlModel", "description":"Lineage between TableA and Model"}' \
+curl http://localhost:5000/lineage/"MlModel|CustomMLService.RevenuePredictions" -H 'content-type: application/json'
+
+
+
+
 

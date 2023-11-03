@@ -105,6 +105,13 @@ from metadata.generated.schema.type.tagLabel import (
      TagSource,
 )
 
+#Lineage 
+from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+from metadata.generated.schema.type.entityLineage import (
+    EntitiesEdge,
+    LineageDetails,
+)
+
 jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTUyMDk2MjYsImV4cCI6bnVsbH0.RVJ6_EWarVhygSILmoGzk7rQ01uqBDOhTNJzAEGUqtyiB_VWJj7beIHI-SgBEQUj1RxSUcFOX2M-DszgHj2eX8a5ezgiT4yij6JVyU07QkCIAgQ5Q-S7tzvkt7GJIBNPXQJjpR9tkmCgFz4hpyanz2I723ZllmZxSrwwRabNUvHT6sLjLzwQillaJw0247iYIvwekmj3nzSL_p1L0mi4RvJkYXSIW_IjDYtCoc6zF5JxOVp9dNCSPYzQeViX6bSdHN3JgYFUQXEOvHSXi3NFl9_Iqyt9D9cAOzGIyqAkQD_7EaGH2TrOADH6Uiuoty8Lwi-GdeBPZnwdx0RcOXQbNQ'
 
 server_config = OpenMetadataConnection(
@@ -164,7 +171,7 @@ def serialize_json(data, mode=None):
 def dump_tag(data): 
    tags = data[0].changeDescription.fieldsAdded[0].newValue
    return json.loads(tags) 
- 
+
 def connection(): 
    metadata = OpenMetadata(server_config)
    return metadata
@@ -282,9 +289,6 @@ def create_pipeline(metadata, pipeline):
             name=pipeline["name"],
             description=pipeline["description"], 
             service=pipeline['service_name'],
-            #tasks=[],            
-            #owner=owner, 
-            #tags=[PIPELINE_TAG_LABEL],
         )
    return metadata.create_or_update(data=mpipeline)
 
@@ -316,6 +320,29 @@ def create_patch_tag(metadata, tag, etype, entity):
                      )
    return join_entity_tag
 
+def create_patch_column_tag(metadata, tag, table, column): 
+   TAG_LABEL = TagLabel(
+                tagFQN=tag, 
+                labelType=LabelType.Automated, 
+                state=State.Suggested.value, 
+                source=TagSource.Classification,
+               )   
+   join_column_tag = metadata.patch_column_tag(
+                       table=table, 
+                       tag_label=TAG_LABEL,
+                       column_fqn=table.fullyQualifiedName.__root__ +"."+column
+                     )
+   return join_column_tag
+
+def create_lineage(metadata, fromEntity, toEntity, fromEntityType, toEntityType, description):
+   lineage = AddLineageRequest(
+                 edge=EntitiesEdge(fromEntity=EntityReference(id=fromEntity.id, type=fromEntityType.lower()),
+                 toEntity=EntityReference(id=toEntity.id, type=toEntityType.lower()),
+                 lineageDetails=LineageDetails(description=description),
+               ),
+            ) 
+   return metadata.add_lineage(data=lineage) 
+
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities
 
@@ -324,6 +351,15 @@ def get_entity_by_name(metadata, entity_type, fqn):
 
 def get_entity_id(metadata, entity_type, fqn):
    return metadata.get_by_name(entity=entity_type, fqn=fqn).id.__root__
+
+def get_lineage_by_name(metadata, entity_type, fqn): 
+   return metadata.get_lineage_by_name( 
+		entity=entity_type,
+		fqn=fqn,
+		# Tune this to control how far in the lineage graph to go
+		up_depth=1,
+                down_depth=1
+          )  
 
 def get_data_source_from_fqn(metadata, fqn):
     if fqn:

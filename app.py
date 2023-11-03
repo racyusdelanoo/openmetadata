@@ -31,6 +31,10 @@ from openmetadata.tag_api import TagListApi
 from openmetadata.tag_api import TagDetailApi
 from openmetadata.patch_tag_api import PatchTagListApi
 from openmetadata.patch_tag_api import PatchTagDetailApi
+from openmetadata.patch_column_tag_api import PatchColumnTagListApi
+from openmetadata.patch_column_tag_api import PatchColumnTagDetailApi
+from openmetadata.lineage_api import LineageListApi
+from openmetadata.lineage_api import LineageDetailApi
 
 app = Flask(__name__)
 
@@ -62,7 +66,10 @@ mappings = {
     '/tag/<string:fqn>': TagDetailApi, 
     '/patch_tag': PatchTagListApi, 
     '/patch_tag/<string:fqn>': PatchTagDetailApi, 
-    #'/lineage': LineageListApi, 
+    '/patch_column_tag': PatchColumnTagListApi, 
+    '/patch_column_tag/<string:fqn>': PatchColumnTagDetailApi, 
+    '/lineage': LineageListApi, 
+    '/lineage/<string:fqn>': LineageDetailApi, 
     #'/data_quality': DataQualityListApi, 
 }
 

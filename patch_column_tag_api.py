@@ -10,7 +10,7 @@ from marshmallow.exceptions import ValidationError
 
 from openmetadata.openmetadata import serialize_json 
 from openmetadata.openmetadata import connection
-from openmetadata.openmetadata import create_patch_tag
+from openmetadata.openmetadata import create_patch_column_tag
 from openmetadata.openmetadata import dump_tag
 from openmetadata.openmetadata import list_entities
 from openmetadata.openmetadata import get_entity_by_name
@@ -21,11 +21,11 @@ from flask_babel import gettext
 
 log = logging.getLogger(__name__)
 
-class PatchTagListApi(Resource): 
-    """ REST API for listing class Patch Tag"""
+class PatchColumnTagListApi(Resource): 
+    """ REST API for listing class Patch Column Tag"""
 
     def __init__(self):
-        self.human_name = gettext('Patch Tag')
+        self.human_name = gettext('Patch Column Tag')
     
     def post(self):
         result = {'status': 'ERROR',
@@ -33,16 +33,16 @@ class PatchTagListApi(Resource):
         return_code = HTTPStatus.BAD_REQUEST
 
         if request.json is not None:
-          tags  = request.json['tags']
-          ename = request.json['entity_name'] 
-          etype = request.json['entity_type']  
+          tags   = request.json['tags']
+          table  = request.json['table'] 
+          column = request.json['column']
           
           metadata = connection()
-          data = get_entity_by_name(metadata, entity_type[etype], ename)
+          data = get_entity_by_name(metadata, entity_type['Table'], table)
           
           if data[0] is not None: 
             for tag in tags: 
-               create_patch_tag(metadata, tag['name'], etype, data[0]) 
+               create_patch_column_tag(metadata, tag['name'], data[0], column) 
 
             result = {'status': 'SUCESS',
                       'message': gettext("Json received with sucess")}
@@ -58,8 +58,8 @@ class PatchTagListApi(Resource):
 
         return result, return_code
 
-class PatchTagDetailApi(Resource): 
-    """ REST API for a single instance of class Patch Tag"""
+class PatchColumnTagDetailApi(Resource): 
+    """ REST API for a single instance of class Patch Column Tag"""
 
     def __init__(self):
         self.human_name = gettext('Tag')
@@ -69,10 +69,7 @@ class PatchTagDetailApi(Resource):
            log.debug(gettext('Retrieving %s (fqn=%s)', self.human_name, fqn))
         
         metadata = connection()
-        fqn = fqn.split('|') 
-        etype  = fqn[0] 
-        entity = fqn[1] 
-        data = get_entity_by_name(metadata, entity_type[etype], entity) 
+        data = get_entity_by_name(metadata, entity_type['Table'], fqn) 
         return_code = HTTPStatus.OK
         if data[0] is not None: 
           result={
