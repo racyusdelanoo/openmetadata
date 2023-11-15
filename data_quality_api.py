@@ -28,7 +28,8 @@ class DataQualityListApi(Resource):
 
     def get(self):
         metadata = connection()
-        data = list_entities(metadata, entity_type["TestCase"])
+        fields = ["testDefinition", "testSuite"]
+        data = list_entities(metadata, entity_type["TestCase"], fields)
         if log.isEnabledFor(logging.DEBUG):
            log.debug(gettext('Listing %(name)s', name=self.human_name))
 
