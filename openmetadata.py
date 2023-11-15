@@ -112,6 +112,27 @@ from metadata.generated.schema.type.entityLineage import (
     LineageDetails,
 )
 
+#Data Quality 
+from metadata.generated.schema.api.tests.createTestCase import CreateTestCaseRequest
+from metadata.generated.schema.api.tests.createTestDefinition import CreateTestDefinitionRequest
+from metadata.generated.schema.api.tests.createTestSuite import CreateTestSuiteRequest
+from metadata.generated.schema.tests.testCase  import TestCase
+from metadata.generated.schema.tests.testCase  import TestCaseParameterValue
+from metadata.generated.schema.tests.testSuite import TestSuite
+from metadata.generated.schema.tests.testDefinition import (
+    EntityType,
+    TestCaseParameterDefinition,
+    TestDefinition,
+    TestPlatform,
+)
+from metadata.generated.schema.tests.basic import (
+    TestCaseResult,
+    TestCaseStatus,
+    TestResultValue,
+)
+
+from datetime import datetime
+
 jwt_token='eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE2OTUyMDk2MjYsImV4cCI6bnVsbH0.RVJ6_EWarVhygSILmoGzk7rQ01uqBDOhTNJzAEGUqtyiB_VWJj7beIHI-SgBEQUj1RxSUcFOX2M-DszgHj2eX8a5ezgiT4yij6JVyU07QkCIAgQ5Q-S7tzvkt7GJIBNPXQJjpR9tkmCgFz4hpyanz2I723ZllmZxSrwwRabNUvHT6sLjLzwQillaJw0247iYIvwekmj3nzSL_p1L0mi4RvJkYXSIW_IjDYtCoc6zF5JxOVp9dNCSPYzQeViX6bSdHN3JgYFUQXEOvHSXi3NFl9_Iqyt9D9cAOzGIyqAkQD_7EaGH2TrOADH6Uiuoty8Lwi-GdeBPZnwdx0RcOXQbNQ'
 
 server_config = OpenMetadataConnection(
@@ -140,7 +161,13 @@ entity_type = {
                 "Classification": Classification,
                 "Tag": Tag,
                 "TagLabel": TagLabel,
+                "TestCase": TestCase,
               }
+
+test_entity_type = {
+                     "Table": EntityType.TABLE, 
+                     "Column": EntityType.COLUMN 
+	           }
 
 def serialize_json(data, mode=None): 
    """
@@ -343,11 +370,78 @@ def create_lineage(metadata, fromEntity, toEntity, fromEntityType, toEntityType,
             ) 
    return metadata.add_lineage(data=lineage) 
 
+def create_test(metadata, test): 
+  
+   test_definition = metadata.create_or_update(
+        CreateTestDefinitionRequest(
+     	   name=test['name'],
+     	   description=test['description'],
+     	   entityType=test_entity_type[test['entity_type']],
+     	   testPlatforms=[TestPlatform.GreatExpectations],
+     	   parameterDefinition=[
+     			         TestCaseParameterDefinition(
+     					                     name=parameter['name'], 
+     							     value=parameter['value']
+     							    ) 
+     			         for parameter in test['parameters']
+     			       ],
+        )
+   )
+   
+   test_suite = metadata.create_or_update_executable_test_suite(
+         CreateTestSuiteRequest(
+            name=test['entity_name'] + "." + test['name'],
+            description=test['description'],
+            executableEntityReference=test['entity_name'],
+         )
+   ) 
+
+   test_case = metadata.create_or_update(
+        CreateTestCaseRequest(
+            name=test['name'],
+            description=test['description'],
+            entityLink="<#E::table::" + test['entity_name'] + ">",
+            testSuite=test_suite.fullyQualifiedName,
+            testDefinition=test_definition.fullyQualifiedName,
+            parameterValues=[
+                             TestCaseParameterValue(
+                                                     name=parameter['name'], 
+                                                     value=parameter['value']
+                                                   )
+                             for parameter in test['parameters']
+                            ],
+        )
+   )
+  
+   test_case_status = TestCaseStatus.Failed
+   result_description = "Test case failed!"
+
+   if test['test_result'].upper() == 'SUCESS': 
+     test_case_status = TestCaseStatus.Success
+     result_description = "Test case success!"
+     
+   test_case_results = metadata.add_test_case_results(
+      test_results=TestCaseResult(
+          timestamp=int(datetime.utcnow().timestamp()),
+          testCaseStatus=test_case_status,
+          result=result_description,
+          sampleData=None,
+          testResultValue=[
+                            TestResultValue(
+                                             name=parameter['name'], 
+                                             value=parameter['value']
+                                           )
+                            for parameter in test['parameters']
+                          ],
+      ),
+      test_case_fqn=test_case.fullyQualifiedName.__root__,
+   )
+
 def list_entities(metadata, entity_type): 
    return metadata.list_entities(entity=entity_type).entities
 
-def get_entity_by_name(metadata, entity_type, fqn):
-   return [metadata.get_by_name(entity=entity_type, fqn=fqn)]
+def get_entity_by_name(metadata, entity_type, fqn, fields = None):
+   return [metadata.get_by_name(entity=entity_type, fqn=fqn, fields=fields)]
 
 def get_entity_id(metadata, entity_type, fqn):
    return metadata.get_by_name(entity=entity_type, fqn=fqn).id.__root__
@@ -380,3 +474,8 @@ def delete_entity(metadata, entity_type, id):
                           recursive=True, 
                           hard_delete=True
                   )
+
+def delete_lineage_edge(metadata, lineage_edge): 
+    edge=EntitiesEdge(fromEntity=EntityReference(id=lineage_edge['from_entity_id'], type=lineage_edge['from_entity_type'].lower()),
+    toEntity=EntityReference(id=lineage_edge['to_entity_id'], type=lineage_edge['to_entity_type'].lower()))
+    metadata.delete_lineage_edge(edge)

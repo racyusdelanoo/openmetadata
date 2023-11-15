@@ -91,7 +91,7 @@ curl http://localhost:5000/lineage/"Table|database-service.database.schema.table
 
 * Lineage between tables and pipeline <br>
 curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"database-service.database.schema.tableA", "fromEntityType":"Table", "toEntity":"pipeline-service.pipeline1", "toEntityType":"Pipeline", "description":"Lineage between TableA and Pipeline"}' \
-curl http://localhost:5000/lineage/"Pipeline|pipeline-service.pipeline1" -H 'content-type: application/json'
+curl http://localhost:5000/lineage/"Pipeline|pipeline-service.pipeline1" -H 'content-type: application/json' \
 curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"pipeline-service.pipeline1", "fromEntityType":"Pipeline", "toEntity":"database-service.database.schema.tableC", "toEntityType":"Table", "description":"Lineage between Pipeline and TableC"}' \
 curl http://localhost:5000/lineage/"Table|database-service.database.schema.tableC" -H 'content-type: application/json'
   
@@ -99,7 +99,13 @@ curl http://localhost:5000/lineage/"Table|database-service.database.schema.table
 curl http://localhost:5000/lineage -H 'content-type: application/json' -X POST -d '{"fromEntity":"database-service.database.schema.tableA", "fromEntityType":"Table", "toEntity":"CustomMLService.RevenuePredictions", "toEntityType":"MlModel", "description":"Lineage between TableA and Model"}' \
 curl http://localhost:5000/lineage/"MlModel|CustomMLService.RevenuePredictions" -H 'content-type: application/json'
 
+* Delete lineage edge <br>
+curl http://localhost:5000/lineage/"Table|database-service.database.schema.tableA|Table|database-service.database.schema.tableB" -H 'content-type: application/json' -X DELETE
 
-
-
+* Data quality <br>
+curl http://localhost:5000/data_quality -H 'content-type: application/json' \
+curl http://localhost:5000/data_quality -H 'content-type: application/json' -X POST -d '{"tests":[{"name":"tableColumnCountToEqual", "description":"Validate that the number of columns in a table is equal to a given value.", "entity_name":"database-service.database.schema.tableA", "entity_type":"Table", "parameters":[{"name":"columnCount", "value":1}], "test_result": "sucess"}]}' \
+curl http://localhost:5000/data_quality -H 'content-type: application/json' -X POST -d '{"tests":[{"name":"columnValuesToBeBetween", "description":"Validate if the column entries are between min value and max value.", "entity_name":"database-service.database.schema.tableA", "entity_type":"Table", "parameters":[{"name":"column", "value":"id"}, {"name":"minValue", "value":1}, {"name":"maxValue", "value":5}], "test_result": "failed"}]}' \
+curl http://localhost:5000/data_quality/"database-service.database.schema.tableA.tableColumnCountToEqual" -H 'content-type: application/json' \
+curl http://localhost:5000/data_quality/"database-service.database.schema.tableA.tableColumnCountToEqual" -H 'content-type: application/json' -X DELETE
 

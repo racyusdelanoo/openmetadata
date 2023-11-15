@@ -15,8 +15,8 @@ from openmetadata.openmetadata import list_entities
 from openmetadata.openmetadata import get_entity_by_name
 from openmetadata.openmetadata import get_entity_id
 from openmetadata.openmetadata import get_lineage_by_name 
-from openmetadata.openmetadata import delete_entity
 from openmetadata.openmetadata import entity_type
+from openmetadata.openmetadata import delete_lineage_edge
 from flask_babel import gettext
 
 log = logging.getLogger(__name__)
@@ -94,3 +94,39 @@ class LineageDetailApi(Resource):
         return result, return_code 
 
      
+    def delete(self, fqn):
+        if log.isEnabledFor(logging.DEBUG):
+           log.debug(gettext('Deleting %s (fqn=%s)', self.human_name, fqn))
+
+        metadata = connection()
+        fqn = fqn.split('|') 
+        from_entity_type = fqn[0] 
+        from_entity      = fqn[1] 
+        to_entity_type   = fqn[2] 
+        to_entity        = fqn[3]  
+        lineage = get_lineage_by_name(metadata, entity_type[from_entity_type], from_entity) 
+        from_entity_data = get_entity_by_name(metadata, entity_type[from_entity_type], from_entity)
+        to_entity_data = get_entity_by_name(metadata, entity_type[to_entity_type], to_entity)
+        return_code = HTTPStatus.OK
+        if lineage is not None: 
+          lineage_edge = {"from_entity_id": from_entity_data[0].id, 
+                          "from_entity_type": from_entity_type, 
+                          "to_entity_id": to_entity_data[0].id,
+                          "to_entity_type": to_entity_type
+                         }
+          delete_lineage_edge(metadata, lineage_edge)
+          result={
+                  'status': 'OK',
+                  'message': gettext(
+                  '%(name)s deleted with sucess!',
+                  name=self.human_name) 
+                 }
+        else: 
+            return_code = HTTPStatus.NOT_FOUND
+            result = {
+                       'status': 'ERROR',
+                       'message': gettext(
+                       '%(name)s not found (fqn=%(fqn)s)',
+                       name=self.human_name, fqn=fqn) 
+                     }
+        return result, return_code 
